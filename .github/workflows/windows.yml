@@ -1,0 +1,44 @@
+name: Windows build
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install WiX Toolset v7
+        run: dotnet tool install --global wix --add-source https://api.nuget.org/v3/index.json
+
+      - name: Configure (Release, MinGW Makefiles)
+        shell: pwsh
+        run: |
+          cmake -S . -B cmake-build-release -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
+          cmake --build cmake-build-release -j $env:NUMBER_PROCESSORS
+
+      - name: Smoke test
+        shell: pwsh
+        run: |
+          cd cmake-build-release
+          Start-Process -FilePath .\Internet_Visualizer.exe -PassThru | ForEach-Object { sleep 8; $_ | Stop-Process }
+
+      - name: Build MSI
+        shell: pwsh
+        run: |
+          $env:PATH = "$env:USERPROFILE\.dotnet\tools;$env:PATH"
+          powershell -ExecutionPolicy Bypass -File packaging/build-msi.ps1 -Version 1.0.0
+
+      - name: Upload MSI
+        uses: actions/upload-artifact@v4
+        with:
+          name: InternetVisualizer-1.0.0.msi
+          path: packaging/out/InternetVisualizer-1.0.0.msi

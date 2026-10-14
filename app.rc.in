@@ -1,0 +1,5 @@
+// Resource script for the Internet Visualizer executable.
+// Configured by CMake (the @APP_ICON@ placeholder is replaced at configure
+// time with the absolute path to assets/icon.ico).
+
+IDI_APP_ICON ICON "@APP_ICON@"

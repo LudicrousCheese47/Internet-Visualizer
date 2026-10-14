@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Internet Visualizer - Windows Installer authoring (WiX Toolset v4+ schema,
+  builds with WiX v7 via `wix build`).
+
+  Preprocessor variables supplied by build-msi.ps1:
+    AppVersion, InstallScope (perMachine/perUser), ExePath, StageDir, IconPath
+    ProductCode, UpgradeCode, MainExeGuid, CoreAssetsGuid, FontLicenseGuid
+-->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Internet Visualizer"
+           Manufacturer="Internet Visualizer contributors"
+           Version="$(var.AppVersion)"
+           ProductCode="$(var.ProductCode)"
+           UpgradeCode="$(var.UpgradeCode)"
+           Scope="$(var.InstallScope)"
+           Language="1033">
+
+    <SummaryInformation
+        Description="Internet Visualizer $(var.AppVersion) - live visualization of your Windows network connections on a world map"
+        Keywords="network;monitor;map;visualizer;raylib" />
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of Internet Visualizer is already installed." />
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+
+    <!-- INSTALLFOLDER = Program Files\Internet Visualizer ; assets live in a
+         subfolder because the app resolves them relative to its working dir. -->
+    <StandardDirectory Id="ProgramFiles6432Folder">
+      <Directory Id="INSTALLFOLDER" Name="Internet Visualizer">
+        <Directory Id="APPASSETS" Name="assets" />
+      </Directory>
+    </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="AppProgramsFolder" Name="Internet Visualizer" />
+    </StandardDirectory>
+
+    <ComponentGroup Id="ProductComponents">
+
+      <Component Id="MainExe" Directory="INSTALLFOLDER" Guid="$(var.MainExeGuid)">
+        <File Id="InternetVisualizerExe" Source="$(var.ExePath)" KeyPath="yes" Checksum="yes">
+          <Shortcut Id="AppStartMenuShortcut" Directory="AppProgramsFolder"
+                    Name="Internet Visualizer" WorkingDirectory="INSTALLFOLDER"
+                    Icon="AppIcon.exe" Advertise="no" />
+        </File>
+        <RemoveFolder Id="RemoveAppProgramsFolder" Directory="AppProgramsFolder" On="uninstall" />
+        <RegistryValue Root="HKMU" Key="Software\Internet Visualizer"
+                       Name="installed" Type="string" Value="[ProductVersion]" />
+      </Component>
+
+      <Component Id="CoreAssets" Directory="APPASSETS" Guid="$(var.CoreAssetsGuid)">
+        <File Id="WmPng" Source="$(var.StageDir)/assets/wm.png" KeyPath="yes" />
+        <File Id="FontRegular" Source="$(var.StageDir)/assets/JetBrainsMono-Regular.ttf" />
+        <File Id="FontBold" Source="$(var.StageDir)/assets/JetBrainsMono-Bold.ttf" />
+      </Component>
+
+      <Component Id="FontLicense" Directory="APPASSETS" Guid="$(var.FontLicenseGuid)">
+        <File Id="OflLicense" Source="$(var.StageDir)/assets/OFL.txt" KeyPath="yes" />
+      </Component>
+
+    </ComponentGroup>
+
+    <Feature Id="ProductFeature" Title="Internet Visualizer" Level="1">
+      <ComponentGroupRef Id="ProductComponents" />
+    </Feature>
+
+    <Icon Id="AppIcon.exe" SourceFile="$(var.IconPath)" />
+  </Package>
+</Wix>

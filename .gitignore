@@ -1,0 +1,28 @@
+# ---- build outputs ---------------------------------------------------------
+/build/
+/cmake-build-*/
+/out/
+*.o
+*.obj
+*.a
+*.lib
+*.exe
+*.pdb
+
+# ---- packaging artifacts ---------------------------------------------------
+/packaging/out/
+*.msi
+*.wixpdb
+*.wixobj
+
+# ---- IDE / local tooling ---------------------------------------------------
+/.idea/
+/.ai/
+*.suo
+*.user
+CMakeUserPresets.json
+
+# ---- OS noise --------------------------------------------------------------
+Thumbs.db
+Desktop.ini
+.DS_Store
